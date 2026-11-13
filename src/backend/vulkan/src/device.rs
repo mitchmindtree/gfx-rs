@@ -86,8 +86,9 @@ impl<'a> GraphicsPipelineInfoBuf<'a> {
         )
     }
 
-    unsafe fn new(desc: &pso::GraphicsPipelineDesc<'a, B>, device: &super::RawDevice) -> Self {
-        let mut this = Self::default();
+    // The buffer points into itself. It is boxed so that returning it does not move it.
+    unsafe fn new(desc: &pso::GraphicsPipelineDesc<'a, B>, device: &super::RawDevice) -> Box<Self> {
+        let mut this = Box::new(Self::default());
 
         match desc.primitive_assembler {
             pso::PrimitiveAssemblerDesc::Vertex {
@@ -430,8 +431,9 @@ struct ComputePipelineInfoBuf<'a> {
     lifetime: PhantomData<&'a vk::Pipeline>,
 }
 impl<'a> ComputePipelineInfoBuf<'a> {
-    unsafe fn new(desc: &pso::ComputePipelineDesc<'a, B>) -> Self {
-        let mut this = Self::default();
+    // The buffer points into itself. It is boxed so that returning it does not move it.
+    unsafe fn new(desc: &pso::ComputePipelineDesc<'a, B>) -> Box<Self> {
+        let mut this = Box::new(Self::default());
         this.c_string = CString::new(desc.shader.entry).unwrap();
         this.entries = desc
             .shader
